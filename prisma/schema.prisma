@@ -1,0 +1,57 @@
+// Prisma schema for Slice Hub
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String
+  image       String
+  sortOrder   Int      @default(0)
+  items       MenuItem[]
+}
+
+model MenuItem {
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  name          String
+  description   String
+  categoryId    String
+  category      Category @relation(fields: [categoryId], references: [id])
+  image         String
+  badge         String?  // BEST SELLER | SIGNATURE | SPICY | null
+  hasSizes      Boolean  @default(false) // true for pizza
+  price         Int?     // single price (non-pizza)
+  priceRegular  Int?     // pizza regular 7"
+  priceMedium   Int?     // pizza medium 10"
+  priceLarge    Int?     // pizza large 13"
+  sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
+}
+
+model Deal {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String
+  badge       String   // PERFECT FOR ONE | BEST VALUE | FAMILY TABLE etc
+  section     String   @default("combo") // combo | choice
+  price       Int
+  image       String
+  sortOrder   Int      @default(0)
+  items       DealItem[]
+}
+
+model DealItem {
+  id      String @id @default(cuid())
+  dealId  String
+  deal    Deal   @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  label   String
+}
